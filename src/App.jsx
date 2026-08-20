@@ -1,0 +1,22 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import ExplorePlots from './pages/ExplorePlots';
+import PropertyDetails from './pages/PropertyDetails';
+import LoginRegister from './pages/LoginRegister';
+import Dashboard from './pages/Dashboard';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/explore" element={<ExplorePlots />} />
+        <Route path="/property/:id" element={<PropertyDetails />} />
+        <Route path="/login" element={<LoginRegister />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
