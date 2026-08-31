@@ -1,3 +1,14 @@
-// Custom Hook: Re-exports useAuth from AuthContext for clean imports
-// Usage: import useAuth from '../hooks/useAuth'
-export { useAuth as default } from '../context/AuthContext';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+
+// Custom Hook: Clean wrapper around AuthContext for consuming components
+// Usage: const { user, isLoggedIn, login, logout } = useAuth();
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+export default useAuth;

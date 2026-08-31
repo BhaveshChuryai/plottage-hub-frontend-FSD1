@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Share2, AtSign, Globe, ArrowRight, MessageCircle } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import useTheme from '../hooks/useTheme';
 
 // useContext: Consumes ThemeContext to demonstrate context consumption in Footer
 export default function Footer() {

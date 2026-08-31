@@ -58,59 +58,8 @@ function PriceRange({ min, max, onMinChange, onMaxChange }) {
   );
 }
 
-export default function ExplorePlots() {
-  const [searchParams] = useSearchParams();
-  const [filters, setFilters] = useState({
-    location: 'All', type: 'All', purpose: 'All',
-    minPrice: '', maxPrice: '', sort: 'Recommended', search: '',
-  });
-  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  // useEffect: Sets route-specific document title
-  useEffect(() => { document.title = 'Plottage Hub — Explore Plots'; }, []);
-
-  // useEffect: Apply URL search params to filters on mount
-  useEffect(() => {
-    const loc  = searchParams.get('location');
-    const type = searchParams.get('type');
-    setFilters((prev) => ({ ...prev, location: loc || 'All', type: type || 'All' }));
-  }, [searchParams]);
-
-  // useEffect: Simulate initial data loading — demonstrates useEffect + state
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 700);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Custom Hook: useDebounce prevents filtering on every keystroke
-  const debouncedSearch = useDebounce(filters.search, 300);
-
-  const updateFilter = (key, val) => setFilters((prev) => ({ ...prev, [key]: val }));
-
-  // useMemo: Filters and sorts properties using the debounced search value
-  const filtered = useMemo(() => {
-    return properties.filter((p) => {
-      const priceInLakh  = p.price / 100000;
-      const matchLoc     = filters.location === 'All' || p.location.toLowerCase().includes(filters.location.toLowerCase());
-      const matchType    = filters.type === 'All'     || p.type === filters.type;
-      const matchPurpose = filters.purpose === 'All'  || p.purpose === filters.purpose;
-      const matchMin     = !filters.minPrice || priceInLakh >= parseFloat(filters.minPrice);
-      const matchMax     = !filters.maxPrice || priceInLakh <= parseFloat(filters.maxPrice);
-      const matchSearch  = !debouncedSearch  || p.title.toLowerCase().includes(debouncedSearch.toLowerCase()) || p.location.toLowerCase().includes(debouncedSearch.toLowerCase());
-      return matchLoc && matchType && matchPurpose && matchMin && matchMax && matchSearch;
-    }).sort((a, b) => {
-      if (filters.sort === 'Price: Low to High')  return a.price - b.price;
-      if (filters.sort === 'Price: High to Low')  return b.price - a.price;
-      if (filters.sort === 'Newest')              return b.id - a.id;
-      return b.potential - a.potential;
-    });
-  }, [filters.location, filters.type, filters.purpose, filters.minPrice, filters.maxPrice, filters.sort, debouncedSearch]);
-
-  const clearFilters = () => setFilters({ location: 'All', type: 'All', purpose: 'All', minPrice: '', maxPrice: '', sort: 'Recommended', search: '' });
-  const hasActiveFilters = filters.location !== 'All' || filters.type !== 'All' || filters.purpose !== 'All' || filters.minPrice || filters.maxPrice || filters.search;
-
-  const FilterPanel = () => (
+function FilterPanel({ filters, updateFilter, debouncedSearch, hasActiveFilters, clearFilters }) {
+  return (
     <div className="space-y-6">
       <div>
         <label className="block text-[#A5A5A5] text-xs font-semibold uppercase tracking-widest mb-2">Search</label>
@@ -161,6 +110,57 @@ export default function ExplorePlots() {
       )}
     </div>
   );
+}
+
+export default function ExplorePlots() {
+  const [searchParams] = useSearchParams();
+  const [filters, setFilters] = useState(() => ({
+    location: searchParams.get('location') || 'All',
+    type: searchParams.get('type') || 'All',
+    purpose: searchParams.get('purpose') || 'All',
+    minPrice: '',
+    maxPrice: '',
+    sort: 'Recommended',
+    search: '',
+  }));
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // useEffect: Sets route-specific document title
+  useEffect(() => { document.title = 'Plottage Hub — Explore Plots'; }, []);
+
+  // useEffect: Simulate initial data loading — demonstrates useEffect + state
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Custom Hook: useDebounce prevents filtering on every keystroke
+  const debouncedSearch = useDebounce(filters.search, 300);
+
+  const updateFilter = (key, val) => setFilters((prev) => ({ ...prev, [key]: val }));
+
+  // useMemo: Filters and sorts properties using the debounced search value
+  const filtered = useMemo(() => {
+    return properties.filter((p) => {
+      const priceInLakh  = p.price / 100000;
+      const matchLoc     = filters.location === 'All' || p.location.toLowerCase().includes(filters.location.toLowerCase());
+      const matchType    = filters.type === 'All'     || p.type === filters.type;
+      const matchPurpose = filters.purpose === 'All'  || p.purpose === filters.purpose;
+      const matchMin     = !filters.minPrice || priceInLakh >= parseFloat(filters.minPrice);
+      const matchMax     = !filters.maxPrice || priceInLakh <= parseFloat(filters.maxPrice);
+      const matchSearch  = !debouncedSearch  || p.title.toLowerCase().includes(debouncedSearch.toLowerCase()) || p.location.toLowerCase().includes(debouncedSearch.toLowerCase());
+      return matchLoc && matchType && matchPurpose && matchMin && matchMax && matchSearch;
+    }).sort((a, b) => {
+      if (filters.sort === 'Price: Low to High')  return a.price - b.price;
+      if (filters.sort === 'Price: High to Low')  return b.price - a.price;
+      if (filters.sort === 'Newest')              return b.id - a.id;
+      return b.potential - a.potential;
+    });
+  }, [filters.location, filters.type, filters.purpose, filters.minPrice, filters.maxPrice, filters.sort, debouncedSearch]);
+
+  const clearFilters = () => setFilters({ location: 'All', type: 'All', purpose: 'All', minPrice: '', maxPrice: '', sort: 'Recommended', search: '' });
+  const hasActiveFilters = filters.location !== 'All' || filters.type !== 'All' || filters.purpose !== 'All' || filters.minPrice || filters.maxPrice || filters.search;
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
@@ -216,7 +216,13 @@ export default function ExplorePlots() {
                   </button>
                 )}
               </div>
-              <FilterPanel />
+              <FilterPanel
+                filters={filters}
+                updateFilter={updateFilter}
+                debouncedSearch={debouncedSearch}
+                hasActiveFilters={hasActiveFilters}
+                clearFilters={clearFilters}
+              />
             </div>
           </aside>
 
@@ -317,7 +323,13 @@ export default function ExplorePlots() {
                 <X size={20} />
               </button>
             </div>
-            <FilterPanel />
+            <FilterPanel
+              filters={filters}
+              updateFilter={updateFilter}
+              debouncedSearch={debouncedSearch}
+              hasActiveFilters={hasActiveFilters}
+              clearFilters={clearFilters}
+            />
             <button
               onClick={() => setMobileFilterOpen(false)}
               className="w-full btn-gold mt-8 py-3.5 rounded-xl font-bold text-sm"

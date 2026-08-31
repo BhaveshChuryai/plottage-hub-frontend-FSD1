@@ -7,24 +7,8 @@ const types = ['All Types', 'Residential', 'Agricultural', 'Commercial'];
 const budgets = ['Any Budget', 'Under ₹20 Lakh', '₹20L – ₹40L', '₹40L – ₹60L', 'Above ₹60 Lakh'];
 const sizes = ['Any Size', 'Under 5,000 sq.ft', '5K – 10K sq.ft', '10K – 20K sq.ft', 'Above 20K sq.ft'];
 
-export default function SearchBar({ compact = false }) {
-  const [location, setLocation] = useState('');
-  const [type, setType] = useState('');
-  const [budget, setBudget] = useState('');
-  const [size, setSize] = useState('');
-  const navigate = useNavigate();
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (location) params.set('location', location);
-    if (type && type !== 'All Types') params.set('type', type);
-    if (budget && budget !== 'Any Budget') params.set('budget', budget);
-    if (size && size !== 'Any Size') params.set('size', size);
-    navigate(`/explore?${params.toString()}`);
-  };
-
-  const SelectField = ({ icon: Icon, placeholder, value, onChange, options }) => (
+function SelectField({ icon: Icon, placeholder, value, onChange, options, compact }) {
+  return (
     <div className="relative group">
       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C9A34A] z-10">
         <Icon size={16} />
@@ -41,6 +25,24 @@ export default function SearchBar({ compact = false }) {
       <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A5A5A5] pointer-events-none" />
     </div>
   );
+}
+
+export default function SearchBar({ compact = false }) {
+  const [location, setLocation] = useState('');
+  const [type, setType] = useState('');
+  const [budget, setBudget] = useState('');
+  const [size, setSize] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (location) params.set('location', location);
+    if (type && type !== 'All Types') params.set('type', type);
+    if (budget && budget !== 'Any Budget') params.set('budget', budget);
+    if (size && size !== 'Any Size') params.set('size', size);
+    navigate(`/explore?${params.toString()}`);
+  };
 
   return (
     <form onSubmit={handleSearch} className={compact ? '' : 'glass-card rounded-2xl p-4 md:p-6'}>

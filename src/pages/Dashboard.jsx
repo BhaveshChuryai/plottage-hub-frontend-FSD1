@@ -74,34 +74,8 @@ function BarChart() {
 
 const recommended = properties.slice(4, 7);
 
-export default function Dashboard() {
-  const [active, setActive] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-
-  // useContext: Consumes AuthContext via useAuth hook for greeting
-  const { user, logout } = useAuth();
-
-  // useContext: Consumes WishlistContext — shows globally saved properties
-  const { wishlist } = useWishlist();
-
-  // Get actual saved properties from wishlist context
-  const savedProperties = properties.filter((p) => wishlist.includes(p.id));
-
-  // useEffect: Sets route-specific document title
-  useEffect(() => {
-    document.title = 'Plottage Hub — Dashboard';
-  }, []);
-
-  // KPI data — dynamically reflects wishlist count
-  const kpis = [
-    { label: 'Saved Properties', value: savedProperties.length, icon: Bookmark,      trend: wishlist.length > 0 ? `${wishlist.length} saved` : 'None saved', color: 'text-[#C9A34A]', bg: 'bg-[rgba(201,163,74,0.08)] border-[rgba(201,163,74,0.15)]' },
-    { label: 'Active Enquiries', value: 4,                       icon: MessageSquare, trend: '2 awaiting response',                                           color: 'text-blue-400',   bg: 'bg-blue-500/8 border-blue-500/15' },
-    { label: 'Properties Viewed', value: 28,                     icon: Eye,           trend: '+8 this month',                                                 color: 'text-purple-400', bg: 'bg-purple-500/8 border-purple-500/15' },
-    { label: 'Opportunities',    value: 8,                       icon: TrendingUp,    trend: 'High potential',                                                 color: 'text-emerald-400', bg: 'bg-emerald-500/8 border-emerald-500/15' },
-  ];
-
-  const Sidebar = ({ mobile = false }) => (
+function DashboardSidebar({ mobile = false, active, setActive, setSidebarOpen, wishlist, user, logout, navigate }) {
+  return (
     <div className={`flex flex-col h-full ${mobile ? '' : 'w-64'}`}>
       {/* Logo */}
       <div className="p-5 border-b border-[rgba(255,255,255,0.06)]">
@@ -158,12 +132,48 @@ export default function Dashboard() {
       </div>
     </div>
   );
+}
+
+export default function Dashboard() {
+  const [active, setActive] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // useContext: Consumes AuthContext via useAuth hook for greeting
+  const { user, logout } = useAuth();
+
+  // useContext: Consumes WishlistContext — shows globally saved properties
+  const { wishlist } = useWishlist();
+
+  // Get actual saved properties from wishlist context
+  const savedProperties = properties.filter((p) => wishlist.includes(p.id));
+
+  // useEffect: Sets route-specific document title
+  useEffect(() => {
+    document.title = 'Plottage Hub — Dashboard';
+  }, []);
+
+  // KPI data — dynamically reflects wishlist count
+  const kpis = [
+    { label: 'Saved Properties', value: savedProperties.length, icon: Bookmark,      trend: wishlist.length > 0 ? `${wishlist.length} saved` : 'None saved', color: 'text-[#C9A34A]', bg: 'bg-[rgba(201,163,74,0.08)] border-[rgba(201,163,74,0.15)]' },
+    { label: 'Active Enquiries', value: 4,                       icon: MessageSquare, trend: '2 awaiting response',                                           color: 'text-blue-400',   bg: 'bg-blue-500/8 border-blue-500/15' },
+    { label: 'Properties Viewed', value: 28,                     icon: Eye,           trend: '+8 this month',                                                 color: 'text-purple-400', bg: 'bg-purple-500/8 border-purple-500/15' },
+    { label: 'Opportunities',    value: 8,                       icon: TrendingUp,    trend: 'High potential',                                                 color: 'text-emerald-400', bg: 'bg-emerald-500/8 border-emerald-500/15' },
+  ];
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--bg-primary)' }}>
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 flex-shrink-0 border-r border-[rgba(255,255,255,0.06)] min-h-screen sticky top-0" style={{ background: '#0a0a0a' }}>
-        <Sidebar />
+        <DashboardSidebar
+          active={active}
+          setActive={setActive}
+          setSidebarOpen={setSidebarOpen}
+          wishlist={wishlist}
+          user={user}
+          logout={logout}
+          navigate={navigate}
+        />
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -177,7 +187,16 @@ export default function Dashboard() {
                 <X size={20} />
               </button>
             </div>
-            <Sidebar mobile />
+            <DashboardSidebar
+              mobile
+              active={active}
+              setActive={setActive}
+              setSidebarOpen={setSidebarOpen}
+              wishlist={wishlist}
+              user={user}
+              logout={logout}
+              navigate={navigate}
+            />
           </div>
         </div>
       )}

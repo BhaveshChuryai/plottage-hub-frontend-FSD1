@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
-import { useTheme } from '../context/ThemeContext';
+import useTheme from '../hooks/useTheme';
 
 const navLinks = [
   { label: 'Home', path: '/' },
@@ -29,9 +29,6 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // useEffect: Closes mobile menu on route change
-  useEffect(() => setMobileOpen(false), [location]);
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
@@ -145,6 +142,7 @@ export default function Navbar() {
                 <Link
                   key={link.label}
                   to={link.path}
+                  onClick={() => setMobileOpen(false)}
                   className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                     isActive(link.path)
                       ? 'text-[#C9A34A] bg-[rgba(201,163,74,0.08)] border-l-2 border-[#C9A34A]'
@@ -169,12 +167,13 @@ export default function Navbar() {
                   <>
                     <Link
                       to="/dashboard"
+                      onClick={() => setMobileOpen(false)}
                       className="block w-full text-center px-4 py-3 text-sm font-medium text-[#A5A5A5] hover:text-[#C9A34A] transition-colors border border-[rgba(201,163,74,0.2)] rounded-lg"
                     >
                       Dashboard
                     </Link>
                     <button
-                      onClick={logout}
+                      onClick={() => { logout(); setMobileOpen(false); }}
                       className="block w-full text-center px-4 py-3 text-sm font-medium text-red-400 hover:text-red-300 transition-colors border border-red-500/20 rounded-lg"
                     >
                       Logout
@@ -184,12 +183,14 @@ export default function Navbar() {
                   <>
                     <Link
                       to="/login"
+                      onClick={() => setMobileOpen(false)}
                       className="block w-full text-center px-4 py-3 text-sm font-medium text-[#A5A5A5] hover:text-[#C9A34A] transition-colors border border-[rgba(201,163,74,0.2)] rounded-lg"
                     >
                       Login
                     </Link>
                     <Link
                       to="/login"
+                      onClick={() => setMobileOpen(false)}
                       className="btn-gold block w-full text-center px-4 py-3 rounded-lg text-sm font-semibold"
                     >
                       <span>List Your Property</span>
