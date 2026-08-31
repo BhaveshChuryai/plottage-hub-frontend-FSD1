@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 // useContext: Creates a shared theme context accessible by any component
@@ -11,6 +11,13 @@ export function ThemeProvider({ children }) {
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
+
+  // useEffect: Applies data-theme attribute to <html> so CSS variables respond
+  // This is the critical bridge between JS state and CSS — without this,
+  // the toggle changes state but nothing visually changes in the DOM.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
