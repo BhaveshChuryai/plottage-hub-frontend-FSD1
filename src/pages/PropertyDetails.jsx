@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  MapPin, Square, CheckCircle, ArrowLeft, Heart, Share2, Phone, Mail,
+  MapPin, Square, CheckCircle, Heart, Share2, Phone,
   TrendingUp, Car, Landmark, Wifi, Building, Compass, ChevronLeft, ChevronRight, Star
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { properties } from '../data/properties';
+import useWishlist from '../hooks/useWishlist';
 
 function EnquiryForm() {
   const [form, setForm] = useState({ name: '', phone: '', email: '', message: '' });
@@ -35,7 +36,7 @@ function EnquiryForm() {
   if (submitted) {
     return (
       <div className="text-center py-8">
-        <div className="w-16 h-16 rounded-full bg-[rgba(201,163,74,0.1)] border border-[rgba(201,163,74,0.4)] flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 rounded-full bg-[rgba(201,163,74,0.1)] border border-[rgba(201,163,74,0.35)] flex items-center justify-center mx-auto mb-4">
           <CheckCircle size={28} className="text-[#C9A34A]" />
         </div>
         <h3 className="text-[#F5F5F5] font-semibold mb-2">Enquiry Submitted!</h3>
@@ -56,38 +57,40 @@ function EnquiryForm() {
         { key: 'email', label: 'Email Address', type: 'email', placeholder: 'your@email.com' },
       ].map(({ key, label, type, placeholder }) => (
         <div key={key}>
-          <label className="block text-[#A5A5A5] text-xs font-medium mb-1.5">{label}</label>
+          <label htmlFor={`enquiry-${key}`} className="block text-[#A5A5A5] text-xs font-medium mb-1.5">{label}</label>
           <input
+            id={`enquiry-${key}`}
             type={type}
             placeholder={placeholder}
             value={form[key]}
             onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-            className={`w-full input-premium px-4 py-3 rounded-lg text-sm ${errors[key] ? 'border-red-500/60' : ''}`}
+            className={`w-full input-premium px-4 py-3 rounded-xl text-sm ${errors[key] ? 'border-red-500/60' : ''}`}
           />
           {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
         </div>
       ))}
       <div>
-        <label className="block text-[#A5A5A5] text-xs font-medium mb-1.5">Message</label>
+        <label htmlFor="enquiry-message" className="block text-[#A5A5A5] text-xs font-medium mb-1.5">Message</label>
         <textarea
+          id="enquiry-message"
           placeholder="Tell us your requirements..."
           value={form.message}
           onChange={(e) => setForm({ ...form, message: e.target.value })}
           rows={3}
-          className={`w-full input-premium px-4 py-3 rounded-lg text-sm resize-none ${errors.message ? 'border-red-500/60' : ''}`}
+          className={`w-full input-premium px-4 py-3 rounded-xl text-sm resize-none ${errors.message ? 'border-red-500/60' : ''}`}
         />
         {errors.message && <p className="text-red-400 text-xs mt-1">{errors.message}</p>}
       </div>
       <button
         type="submit"
         disabled={loading}
-        className="btn-gold w-full py-3.5 rounded-lg font-semibold text-sm disabled:opacity-70"
+        className="btn-gold w-full py-3.5 rounded-xl font-semibold text-sm disabled:opacity-70"
       >
         <span>{loading ? 'Sending...' : 'SEND ENQUIRY'}</span>
       </button>
       <button
         type="button"
-        className="w-full py-3.5 rounded-lg border border-[rgba(201,163,74,0.3)] text-[#C9A34A] text-sm font-semibold hover:bg-[rgba(201,163,74,0.05)] transition-all flex items-center justify-center gap-2"
+        className="w-full py-3.5 rounded-xl border border-[rgba(201,163,74,0.25)] text-[#C9A34A] text-sm font-semibold hover:bg-[rgba(201,163,74,0.05)] transition-all flex items-center justify-center gap-2"
       >
         <Phone size={16} /> SCHEDULE A CALL
       </button>
@@ -98,10 +101,19 @@ function EnquiryForm() {
 export default function PropertyDetails() {
   const { id } = useParams();
   const property = properties.find((p) => p.id === parseInt(id)) || properties[0];
-  const [currentImg, setCurrentImg] = useState(0);
-  const [wishlisted, setWishlisted] = useState(false);
 
-  // Extra images for gallery
+  const [currentImg, setCurrentImg] = useState(0);
+
+  // useContext: Consumes WishlistContext via useWishlist hook — same state everywhere
+  const { toggleWishlist, isWishlisted } = useWishlist();
+  const wishlisted = isWishlisted(property.id);
+
+  // useEffect: Sets route-specific document title with property name
+  useEffect(() => {
+    document.title = `Plottage Hub — ${property.title}`;
+  }, [property.title]);
+
+  // Gallery images
   const galleryImages = [
     property.image,
     `https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=900&q=80`,
@@ -130,19 +142,19 @@ export default function PropertyDetails() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-[#A5A5A5] mb-6">
+        <nav className="flex items-center gap-2 text-sm text-[#A5A5A5] mb-6" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-[#C9A34A] transition-colors">Home</Link>
           <span>/</span>
           <Link to="/explore" className="hover:text-[#C9A34A] transition-colors">Explore</Link>
           <span>/</span>
           <span className="text-[#F5F5F5]">{property.title}</span>
-        </div>
+        </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left/Main */}
           <div className="lg:col-span-2 space-y-8">
             {/* Gallery */}
-            <div className="relative rounded-2xl overflow-hidden bg-[#101010] border border-[rgba(201,163,74,0.12)]">
+            <div className="relative rounded-2xl overflow-hidden bg-[#101010] border border-[rgba(255,255,255,0.06)]">
               <div className="aspect-[16/9] relative">
                 <img
                   src={galleryImages[currentImg]}
@@ -154,13 +166,15 @@ export default function PropertyDetails() {
                 {/* Nav arrows */}
                 <button
                   onClick={() => setCurrentImg((i) => (i - 1 + galleryImages.length) % galleryImages.length)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#080808]/70 backdrop-blur-sm border border-[rgba(201,163,74,0.3)] flex items-center justify-center text-[#C9A34A] hover:bg-[rgba(201,163,74,0.1)] transition-all"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#080808]/70 backdrop-blur-sm border border-[rgba(201,163,74,0.25)] flex items-center justify-center text-[#C9A34A] hover:bg-[rgba(201,163,74,0.1)] transition-all"
+                  aria-label="Previous image"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={() => setCurrentImg((i) => (i + 1) % galleryImages.length)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#080808]/70 backdrop-blur-sm border border-[rgba(201,163,74,0.3)] flex items-center justify-center text-[#C9A34A] hover:bg-[rgba(201,163,74,0.1)] transition-all"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#080808]/70 backdrop-blur-sm border border-[rgba(201,163,74,0.25)] flex items-center justify-center text-[#C9A34A] hover:bg-[rgba(201,163,74,0.1)] transition-all"
+                  aria-label="Next image"
                 >
                   <ChevronRight size={20} />
                 </button>
@@ -190,6 +204,7 @@ export default function PropertyDetails() {
                     key={i}
                     onClick={() => setCurrentImg(i)}
                     className={`flex-1 aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all ${i === currentImg ? 'border-[#C9A34A]' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                    aria-label={`View image ${i + 1}`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
@@ -209,13 +224,15 @@ export default function PropertyDetails() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
+                {/* Wishlist — uses global WishlistContext */}
                 <button
-                  onClick={() => setWishlisted(!wishlisted)}
-                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${wishlisted ? 'bg-[#C9A34A] border-[#C9A34A] text-[#080808]' : 'border-[rgba(201,163,74,0.3)] text-[#A5A5A5] hover:text-[#C9A34A]'}`}
+                  onClick={() => toggleWishlist(property.id)}
+                  className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all ${wishlisted ? 'bg-[#C9A34A] border-[#C9A34A] text-[#080808]' : 'border-[rgba(201,163,74,0.25)] text-[#A5A5A5] hover:text-[#C9A34A]'}`}
+                  aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
                   <Heart size={16} fill={wishlisted ? 'currentColor' : 'none'} />
                 </button>
-                <button className="w-10 h-10 rounded-full border border-[rgba(201,163,74,0.3)] flex items-center justify-center text-[#A5A5A5] hover:text-[#C9A34A] transition-colors">
+                <button className="w-10 h-10 rounded-full border border-[rgba(201,163,74,0.25)] flex items-center justify-center text-[#A5A5A5] hover:text-[#C9A34A] transition-colors" aria-label="Share property">
                   <Share2 size={16} />
                 </button>
               </div>
@@ -223,26 +240,26 @@ export default function PropertyDetails() {
 
             {/* Price & Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-4 bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)]">
+              <div className="p-4 bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)]">
                 <p className="text-[#A5A5A5] text-xs mb-1">Price</p>
                 <p className="text-[#C9A34A] font-bold text-xl">{property.priceDisplay}</p>
               </div>
-              <div className="p-4 bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)]">
+              <div className="p-4 bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)]">
                 <p className="text-[#A5A5A5] text-xs mb-1">Plot Size</p>
                 <p className="text-[#F5F5F5] font-semibold">{property.sizeDisplay}</p>
               </div>
-              <div className="p-4 bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)]">
+              <div className="p-4 bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)]">
                 <p className="text-[#A5A5A5] text-xs mb-1">Type</p>
                 <p className="text-[#F5F5F5] font-semibold">{property.type}</p>
               </div>
-              <div className="p-4 bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)]">
+              <div className="p-4 bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)]">
                 <p className="text-[#A5A5A5] text-xs mb-1">Status</p>
                 <p className="text-emerald-400 font-semibold">Available</p>
               </div>
             </div>
 
             {/* Description */}
-            <div className="bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)] p-6">
+            <div className="bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)] p-6">
               <h2 className="text-[#F5F5F5] font-semibold mb-3">About This Property</h2>
               <p className="text-[#A5A5A5] leading-relaxed">{property.description}</p>
               <div className="flex flex-wrap gap-2 mt-4">
@@ -257,8 +274,8 @@ export default function PropertyDetails() {
               <h2 className="text-[#F5F5F5] font-semibold mb-4">Property Highlights</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {highlights.map(({ label, value, icon: Icon }) => (
-                  <div key={label} className="flex items-start gap-3 p-4 bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)]">
-                    <div className="w-9 h-9 rounded-lg bg-[rgba(201,163,74,0.08)] border border-[rgba(201,163,74,0.2)] flex items-center justify-center flex-shrink-0">
+                  <div key={label} className="flex items-start gap-3 p-4 bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)]">
+                    <div className="w-9 h-9 rounded-lg bg-[rgba(201,163,74,0.08)] border border-[rgba(201,163,74,0.15)] flex items-center justify-center flex-shrink-0">
                       <Icon size={16} className="text-[#C9A34A]" />
                     </div>
                     <div>
@@ -271,7 +288,7 @@ export default function PropertyDetails() {
             </div>
 
             {/* Nearby Attractions */}
-            <div className="bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)] p-6">
+            <div className="bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)] p-6">
               <h2 className="text-[#F5F5F5] font-semibold mb-4">Nearby Attractions</h2>
               <div className="space-y-3">
                 {property.nearbyAttractions.map((place) => (
@@ -288,31 +305,28 @@ export default function PropertyDetails() {
               <h2 className="text-[#F5F5F5] font-semibold mb-4">Location Map</h2>
               <div className="map-container rounded-xl h-64 flex items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-[rgba(201,163,74,0.03)] to-transparent" />
-                {/* Grid */}
                 <div className="absolute inset-0" style={{
-                  backgroundImage: 'linear-gradient(rgba(201,163,74,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(201,163,74,0.05) 1px, transparent 1px)',
+                  backgroundImage: 'linear-gradient(rgba(201,163,74,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201,163,74,0.04) 1px, transparent 1px)',
                   backgroundSize: '40px 40px'
                 }} />
-                {/* Pin */}
                 <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-14 h-14 rounded-full bg-[rgba(201,163,74,0.15)] border-2 border-[#C9A34A] flex items-center justify-center animate-pulse">
+                  <div className="w-14 h-14 rounded-full bg-[rgba(201,163,74,0.12)] border-2 border-[#C9A34A] flex items-center justify-center animate-pulse">
                     <MapPin size={24} className="text-[#C9A34A]" />
                   </div>
-                  <div className="mt-2 px-3 py-1.5 bg-[#101010] border border-[rgba(201,163,74,0.3)] rounded-lg text-[#C9A34A] text-xs font-semibold">
+                  <div className="mt-2 px-3 py-1.5 bg-[#101010] border border-[rgba(201,163,74,0.25)] rounded-lg text-[#C9A34A] text-xs font-semibold">
                     {property.location}
                   </div>
                 </div>
-                {/* Road lines */}
-                <div className="absolute left-0 right-0 top-1/2 h-px bg-[rgba(201,163,74,0.1)]" />
-                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[rgba(201,163,74,0.1)]" />
+                <div className="absolute left-0 right-0 top-1/2 h-px bg-[rgba(201,163,74,0.06)]" />
+                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[rgba(201,163,74,0.06)]" />
                 <div className="absolute bottom-3 right-3 text-[#A5A5A5] text-xs">
                   * Illustrative map placeholder
                 </div>
               </div>
             </div>
 
-            {/* Investment Insights */}
-            <div className="bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)] p-6">
+            {/* Investment Insights — fixed metric spacing */}
+            <div className="bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)] p-6">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-[#F5F5F5] font-semibold">Investment Insights</h2>
                 <span className="text-[#A5A5A5] text-xs">* Illustrative / Demo Data</span>
@@ -337,11 +351,11 @@ export default function PropertyDetails() {
             </div>
           </div>
 
-          {/* Right Sticky Enquiry */}
+          {/* Right Sticky Enquiry — on mobile it's part of normal flow */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <div className="bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.2)] p-6 gold-glow">
-                <div className="text-center pb-5 border-b border-[rgba(201,163,74,0.1)] mb-5">
+            <div className="lg:sticky lg:top-24">
+              <div className="bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.15)] p-6">
+                <div className="text-center pb-5 border-b border-[rgba(255,255,255,0.06)] mb-5">
                   <p className="text-[#C9A34A] font-bold text-2xl">{property.priceDisplay}</p>
                   <p className="text-[#A5A5A5] text-sm">{property.sizeDisplay} · {property.type}</p>
                 </div>
@@ -350,15 +364,15 @@ export default function PropertyDetails() {
               </div>
 
               {/* Agent Card */}
-              <div className="mt-4 bg-[#101010] rounded-xl border border-[rgba(201,163,74,0.12)] p-4 flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-[rgba(201,163,74,0.15)] border border-[rgba(201,163,74,0.3)] flex items-center justify-center flex-shrink-0">
+              <div className="mt-4 bg-[#101010] rounded-xl border border-[rgba(255,255,255,0.06)] p-4 flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-[rgba(201,163,74,0.12)] border border-[rgba(201,163,74,0.25)] flex items-center justify-center flex-shrink-0">
                   <span className="text-[#C9A34A] font-bold text-sm">PH</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[#F5F5F5] text-sm font-medium">Plottage Hub Team</p>
                   <p className="text-[#A5A5A5] text-xs">Property Expert</p>
                 </div>
-                <a href="tel:+919876543210" className="text-[#C9A34A] hover:text-[#E3C269] transition-colors">
+                <a href="tel:+919876543210" className="text-[#C9A34A] hover:text-[#E3C269] transition-colors" aria-label="Call agent">
                   <Phone size={18} />
                 </a>
               </div>
@@ -372,7 +386,7 @@ export default function PropertyDetails() {
             to="/explore"
             className="inline-flex items-center gap-2 text-[#A5A5A5] hover:text-[#C9A34A] transition-colors text-sm"
           >
-            <ArrowLeft size={16} /> Back to Explore
+            <ChevronLeft size={16} /> Back to Explore
           </Link>
         </div>
       </div>

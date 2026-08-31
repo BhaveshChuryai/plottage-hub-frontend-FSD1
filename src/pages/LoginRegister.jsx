@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Eye, EyeOff, CheckCircle, AlertCircle, User, Mail, Phone, Lock, Building } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, CheckCircle, AlertCircle, User, Mail, Phone, Lock } from 'lucide-react';
+import useAuth from '../hooks/useAuth';
 
-function InputField({ label, type = 'text', placeholder, value, onChange, error, icon: Icon, rightEl }) {
+function InputField({ id, label, type = 'text', placeholder, value, onChange, error, icon: Icon, rightEl }) {
   return (
     <div>
-      <label className="block text-[#A5A5A5] text-xs font-medium mb-1.5 uppercase tracking-wider">{label}</label>
+      <label htmlFor={id} className="block text-[#A5A5A5] text-xs font-medium mb-1.5 uppercase tracking-wider">{label}</label>
       <div className="relative">
         {Icon && (
           <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A5A5A5] z-10">
@@ -13,6 +14,7 @@ function InputField({ label, type = 'text', placeholder, value, onChange, error,
           </div>
         )}
         <input
+          id={id}
           type={type}
           placeholder={placeholder}
           value={value}
@@ -36,8 +38,11 @@ function LoginForm({ onSwitch }) {
   const [form, setForm] = useState({ email: '', password: '', remember: false });
   const [showPw, setShowPw] = useState(false);
   const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // useContext: Consumes AuthContext via useAuth hook
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const validate = () => {
     const e = {};
@@ -52,27 +57,19 @@ function LoginForm({ onSwitch }) {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({});
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSuccess(true); }, 1500);
+    // Simulate async login, then update global AuthContext
+    setTimeout(() => {
+      setLoading(false);
+      // useContext: Updates global auth state — reflected in Navbar and Dashboard
+      login({ name: form.email.split('@')[0], email: form.email });
+      navigate('/dashboard');
+    }, 1500);
   };
-
-  if (success) {
-    return (
-      <div className="text-center py-10">
-        <div className="w-20 h-20 rounded-full bg-[rgba(201,163,74,0.1)] border border-[rgba(201,163,74,0.4)] flex items-center justify-center mx-auto mb-6">
-          <CheckCircle size={36} className="text-[#C9A34A]" />
-        </div>
-        <h3 className="text-[#F5F5F5] font-bold text-xl mb-2">Welcome Back!</h3>
-        <p className="text-[#A5A5A5] mb-6">You have successfully signed in.</p>
-        <Link to="/dashboard" className="btn-gold px-8 py-3.5 rounded-xl font-semibold text-sm">
-          <span>Go to Dashboard</span>
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <InputField
+        id="login-email"
         label="Email Address"
         type="email"
         placeholder="your@email.com"
@@ -82,6 +79,7 @@ function LoginForm({ onSwitch }) {
         icon={Mail}
       />
       <InputField
+        id="login-password"
         label="Password"
         type={showPw ? 'text' : 'password'}
         placeholder="Enter your password"
@@ -90,7 +88,7 @@ function LoginForm({ onSwitch }) {
         error={errors.password}
         icon={Lock}
         rightEl={
-          <button type="button" onClick={() => setShowPw(!showPw)} className="text-[#A5A5A5] hover:text-[#C9A34A] transition-colors">
+          <button type="button" onClick={() => setShowPw(!showPw)} className="text-[#A5A5A5] hover:text-[#C9A34A] transition-colors" aria-label={showPw ? 'Hide password' : 'Show password'}>
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         }
@@ -98,9 +96,14 @@ function LoginForm({ onSwitch }) {
 
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2 cursor-pointer group">
+          <input
+            type="checkbox"
+            checked={form.remember}
+            onChange={() => setForm({ ...form, remember: !form.remember })}
+            className="sr-only"
+          />
           <div
-            className={`w-4 h-4 rounded border transition-all ${form.remember ? 'bg-[#C9A34A] border-[#C9A34A]' : 'border-[rgba(201,163,74,0.4)] group-hover:border-[rgba(201,163,74,0.7)]'} flex items-center justify-center`}
-            onClick={() => setForm({ ...form, remember: !form.remember })}
+            className={`w-4 h-4 rounded border transition-all ${form.remember ? 'bg-[#C9A34A] border-[#C9A34A]' : 'border-[rgba(201,163,74,0.35)] group-hover:border-[rgba(201,163,74,0.6)]'} flex items-center justify-center`}
           >
             {form.remember && <CheckCircle size={10} className="text-[#080808]" />}
           </div>
@@ -136,8 +139,11 @@ function RegisterForm({ onSwitch }) {
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [errors, setErrors] = useState({});
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // useContext: Consumes AuthContext via useAuth hook
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const validate = () => {
     const e = {};
@@ -156,31 +162,22 @@ function RegisterForm({ onSwitch }) {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({});
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSuccess(true); }, 1800);
+    // Simulate async registration, then update global AuthContext
+    setTimeout(() => {
+      setLoading(false);
+      login({ name: form.name, email: form.email });
+      navigate('/dashboard');
+    }, 1800);
   };
-
-  if (success) {
-    return (
-      <div className="text-center py-10">
-        <div className="w-20 h-20 rounded-full bg-[rgba(201,163,74,0.1)] border border-[rgba(201,163,74,0.4)] flex items-center justify-center mx-auto mb-6">
-          <CheckCircle size={36} className="text-[#C9A34A]" />
-        </div>
-        <h3 className="text-[#F5F5F5] font-bold text-xl mb-2">Account Created!</h3>
-        <p className="text-[#A5A5A5] mb-6">Welcome to Plottage Hub. Start exploring.</p>
-        <Link to="/explore" className="btn-gold px-8 py-3.5 rounded-xl font-semibold text-sm">
-          <span>Explore Properties</span>
-        </Link>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <InputField label="Full Name" placeholder="Your full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} error={errors.name} icon={User} />
-      <InputField label="Email Address" type="email" placeholder="your@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} error={errors.email} icon={Mail} />
-      <InputField label="Mobile Number" type="tel" placeholder="10-digit mobile number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} error={errors.phone} icon={Phone} />
+      <InputField id="reg-name" label="Full Name" placeholder="Your full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} error={errors.name} icon={User} />
+      <InputField id="reg-email" label="Email Address" type="email" placeholder="your@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} error={errors.email} icon={Mail} />
+      <InputField id="reg-phone" label="Mobile Number" type="tel" placeholder="10-digit mobile number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} error={errors.phone} icon={Phone} />
 
       <InputField
+        id="reg-password"
         label="Password"
         type={showPw ? 'text' : 'password'}
         placeholder="Minimum 8 characters"
@@ -189,13 +186,14 @@ function RegisterForm({ onSwitch }) {
         error={errors.password}
         icon={Lock}
         rightEl={
-          <button type="button" onClick={() => setShowPw(!showPw)} className="text-[#A5A5A5] hover:text-[#C9A34A]">
+          <button type="button" onClick={() => setShowPw(!showPw)} className="text-[#A5A5A5] hover:text-[#C9A34A]" aria-label={showPw ? 'Hide password' : 'Show password'}>
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         }
       />
 
       <InputField
+        id="reg-confirm"
         label="Confirm Password"
         type={showConfirm ? 'text' : 'password'}
         placeholder="Re-enter password"
@@ -204,7 +202,7 @@ function RegisterForm({ onSwitch }) {
         error={errors.confirmPw}
         icon={Lock}
         rightEl={
-          <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="text-[#A5A5A5] hover:text-[#C9A34A]">
+          <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="text-[#A5A5A5] hover:text-[#C9A34A]" aria-label={showConfirm ? 'Hide password' : 'Show password'}>
             {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         }
@@ -220,8 +218,8 @@ function RegisterForm({ onSwitch }) {
               onClick={() => setForm({ ...form, accountType: type })}
               className={`py-3 text-xs font-semibold rounded-xl border transition-all duration-200 ${
                 form.accountType === type
-                  ? 'bg-[rgba(201,163,74,0.15)] border-[rgba(201,163,74,0.6)] text-[#C9A34A]'
-                  : 'border-[rgba(201,163,74,0.15)] text-[#A5A5A5] hover:border-[rgba(201,163,74,0.35)]'
+                  ? 'bg-[rgba(201,163,74,0.12)] border-[rgba(201,163,74,0.5)] text-[#C9A34A]'
+                  : 'border-[rgba(255,255,255,0.08)] text-[#A5A5A5] hover:border-[rgba(201,163,74,0.3)]'
               }`}
             >
               {type}
@@ -247,6 +245,20 @@ function RegisterForm({ onSwitch }) {
 
 export default function LoginRegister() {
   const [mode, setMode] = useState('login');
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+
+  // useEffect: Sets route-specific document title
+  useEffect(() => {
+    document.title = 'Plottage Hub — Login';
+  }, []);
+
+  // useEffect: Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <div className="min-h-screen bg-[#080808] flex">
@@ -254,7 +266,7 @@ export default function LoginRegister() {
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=85"
-          alt="Premium Property"
+          alt="Premium real estate property"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/50 to-[#080808]/20" />
@@ -303,12 +315,12 @@ export default function LoginRegister() {
           </div>
 
           {/* Tab Switch */}
-          <div className="flex rounded-xl border border-[rgba(201,163,74,0.2)] p-1 mb-8 bg-[#101010]">
+          <div className="flex rounded-xl border border-[rgba(255,255,255,0.08)] p-1 mb-8 bg-[#101010]">
             <button
               onClick={() => setMode('login')}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
                 mode === 'login'
-                  ? 'bg-[rgba(201,163,74,0.15)] text-[#C9A34A] border border-[rgba(201,163,74,0.3)]'
+                  ? 'bg-[rgba(201,163,74,0.12)] text-[#C9A34A] border border-[rgba(201,163,74,0.25)]'
                   : 'text-[#A5A5A5] hover:text-[#F5F5F5]'
               }`}
             >
@@ -318,7 +330,7 @@ export default function LoginRegister() {
               onClick={() => setMode('register')}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
                 mode === 'register'
-                  ? 'bg-[rgba(201,163,74,0.15)] text-[#C9A34A] border border-[rgba(201,163,74,0.3)]'
+                  ? 'bg-[rgba(201,163,74,0.12)] text-[#C9A34A] border border-[rgba(201,163,74,0.25)]'
                   : 'text-[#A5A5A5] hover:text-[#F5F5F5]'
               }`}
             >
@@ -327,7 +339,7 @@ export default function LoginRegister() {
           </div>
 
           {/* Form */}
-          <div className="bg-[#101010] rounded-2xl border border-[rgba(201,163,74,0.15)] p-6 md:p-8">
+          <div className="bg-[#101010] rounded-2xl border border-[rgba(255,255,255,0.06)] p-6 md:p-8">
             <h2 className="font-['Playfair_Display'] text-2xl font-bold text-[#F5F5F5] mb-1">
               {mode === 'login' ? 'Welcome Back' : 'Create Account'}
             </h2>

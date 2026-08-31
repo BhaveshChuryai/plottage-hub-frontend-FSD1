@@ -32,7 +32,8 @@ export default function SearchBar({ compact = false }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full appearance-none input-premium ${compact ? 'pl-9 pr-8 py-2.5 text-sm' : 'pl-10 pr-9 py-3.5'} rounded-lg cursor-pointer`}
+        className={`w-full appearance-none input-premium ${compact ? 'pl-9 pr-8 py-2.5 text-sm' : 'pl-10 pr-9 py-3.5'} rounded-xl cursor-pointer`}
+        aria-label={placeholder}
       >
         <option value="">{placeholder}</option>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -42,7 +43,7 @@ export default function SearchBar({ compact = false }) {
   );
 
   return (
-    <form onSubmit={handleSearch} className={compact ? '' : 'glass-card rounded-2xl p-4 md:p-6 gold-glow'}>
+    <form onSubmit={handleSearch} className={compact ? '' : 'glass-card rounded-2xl p-4 md:p-6'}>
       <div className={`grid grid-cols-1 sm:grid-cols-2 ${compact ? 'lg:grid-cols-4 gap-3' : 'lg:grid-cols-5 gap-4'}`}>
         {/* Location Input */}
         <div className="relative sm:col-span-2 lg:col-span-1">
@@ -54,8 +55,9 @@ export default function SearchBar({ compact = false }) {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="Search city or region..."
-            className={`w-full input-premium ${compact ? 'pl-9 py-2.5 text-sm' : 'pl-10 py-3.5'} rounded-lg`}
+            className={`w-full input-premium ${compact ? 'pl-9 py-2.5 text-sm' : 'pl-10 py-3.5'} rounded-xl`}
             list="location-list"
+            aria-label="Search location"
           />
           <datalist id="location-list">
             {locations.map((l) => <option key={l} value={l} />)}
@@ -69,7 +71,7 @@ export default function SearchBar({ compact = false }) {
         {/* Search Button */}
         <button
           type="submit"
-          className={`btn-gold rounded-lg font-semibold tracking-wide flex items-center justify-center gap-2 ${compact ? 'px-4 py-2.5 text-sm' : 'px-6 py-3.5'}`}
+          className={`btn-gold rounded-xl font-semibold tracking-wide flex items-center justify-center gap-2 ${compact ? 'px-4 py-2.5 text-sm' : 'px-6 py-3.5'}`}
         >
           <Search size={compact ? 14 : 18} />
           <span>{compact ? 'Search' : 'SEARCH PROPERTIES'}</span>

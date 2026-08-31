@@ -3,7 +3,7 @@ import { MapPin, Phone, Mail, Share2, AtSign, Globe, ArrowRight, MessageCircle }
 
 export default function Footer() {
   return (
-    <footer className="bg-[#080808] border-t border-[rgba(201,163,74,0.15)]">
+    <footer className="bg-[#080808] border-t border-[rgba(201,163,74,0.12)]" role="contentinfo">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
@@ -23,7 +23,8 @@ export default function Footer() {
                 <a
                   key={i}
                   href="#"
-                  className="w-9 h-9 rounded-full border border-[rgba(201,163,74,0.2)] flex items-center justify-center text-[#A5A5A5] hover:text-[#C9A34A] hover:border-[rgba(201,163,74,0.6)] transition-all duration-200"
+                  className="w-9 h-9 rounded-full border border-[rgba(255,255,255,0.08)] flex items-center justify-center text-[#A5A5A5] hover:text-[#C9A34A] hover:border-[rgba(201,163,74,0.5)] transition-all duration-200"
+                  aria-label="Social media link"
                 >
                   <Icon size={16} />
                 </a>
@@ -98,7 +99,7 @@ export default function Footer() {
               </li>
             </ul>
 
-            <div className="mt-6 p-4 border border-[rgba(201,163,74,0.15)] rounded-lg bg-[#101010]">
+            <div className="mt-6 p-4 border border-[rgba(255,255,255,0.06)] rounded-xl bg-[#101010]">
               <p className="text-[#C9A34A] text-xs font-semibold uppercase tracking-wider mb-1">Working Hours</p>
               <p className="text-[#A5A5A5] text-sm">Mon – Sat: 9:00 AM – 7:00 PM</p>
               <p className="text-[#A5A5A5] text-sm">Sunday: Closed</p>
