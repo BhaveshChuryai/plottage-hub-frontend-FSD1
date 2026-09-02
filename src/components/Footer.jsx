@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail, Clock, ArrowRight, MessageCircle } from 'lucide-react';
 import useTheme from '../hooks/useTheme';
+import PageContainer from './PageContainer';
 
 // Custom SVG Icons for authentic social media branding
 function InstagramIcon({ size = 16 }) {
@@ -52,7 +53,7 @@ export default function Footer() {
         }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 relative z-10">
+      <PageContainer className="py-16 lg:py-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Column 1: Brand */}
           <div className="space-y-6">
@@ -256,7 +257,7 @@ export default function Footer() {
             ))}
           </div>
         </div>
-      </div>
+      </PageContainer>
     </footer>
   );
 }

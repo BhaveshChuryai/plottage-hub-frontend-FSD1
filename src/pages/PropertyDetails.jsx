@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import PageContainer from '../components/PageContainer';
 import { properties } from '../data/properties';
 import useWishlist from '../hooks/useWishlist';
 
@@ -138,10 +139,10 @@ export default function PropertyDetails() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
+    <div className="min-h-screen w-full overflow-x-hidden" style={{ background: 'var(--bg-primary)' }}>
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <PageContainer className="py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-[#A5A5A5] mb-8" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-[#C9A34A] transition-colors">Home</Link>
@@ -403,7 +404,7 @@ export default function PropertyDetails() {
             <ChevronLeft size={16} /> Back to Explore
           </Link>
         </div>
-      </div>
+      </PageContainer>
 
       <Footer />
     </div>

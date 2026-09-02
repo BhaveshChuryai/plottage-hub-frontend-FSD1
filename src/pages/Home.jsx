@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowRight, TrendingUp, ShieldCheck, CheckCircle2,
-  Sparkles, ChevronRight, BarChart3, Building2, UserCheck
+  ArrowRight,
+  TrendingUp,
+  ShieldCheck,
+  CheckCircle2,
+  Sparkles,
+  ChevronRight,
+  BarChart3,
+  Building2,
+  UserCheck,
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -10,6 +17,7 @@ import SearchBar from '../components/SearchBar';
 import PropertyCard from '../components/PropertyCard';
 import Hero3DVisual from '../components/Hero3DVisual';
 import InvestmentTerrainVisual from '../components/InvestmentTerrainVisual';
+import PageContainer from '../components/PageContainer';
 import { properties } from '../data/properties';
 import useCountUp from '../hooks/useCountUp';
 
@@ -123,7 +131,7 @@ export default function Home() {
       ───────────────────────────────────────────────────────────── */}
       <section
         onMouseMove={handleHeroMouseMove}
-        className="relative min-h-[90vh] lg:min-h-[96vh] flex items-center justify-center overflow-hidden pt-8 pb-16"
+        className="relative min-h-[85vh] lg:min-h-[92vh] flex items-center justify-center overflow-hidden pt-6 pb-14"
       >
         {/* Layered Cinematic Background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -136,7 +144,7 @@ export default function Home() {
             }}
           />
 
-          {/* Controlled Cinematic Lighting Overlays (Preserves green land visibility) */}
+          {/* Controlled Cinematic Lighting Overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#070707]/80 via-[#070707]/50 to-[#070707]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#070707]/70 via-transparent to-[#070707]/70" />
           <div className="absolute inset-0 hero-glow" />
@@ -144,7 +152,7 @@ export default function Home() {
 
         {/* Floating Ambient Gold Orbs */}
         <div
-          className="absolute top-1/4 left-1/12 w-96 h-96 rounded-full pointer-events-none animate-pulse-gold opacity-30"
+          className="absolute top-1/4 left-1/12 w-96 h-96 rounded-full pointer-events-none animate-pulse-gold opacity-25"
           style={{ background: 'radial-gradient(circle, rgba(201,163,74,0.18) 0%, transparent 70%)' }}
         />
         <div
@@ -153,177 +161,182 @@ export default function Home() {
         />
 
         {/* Hero Grid Container */}
-        <div
-          ref={heroRef}
-          className="reveal relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full"
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            {/* Left Content Column */}
-            <div className="lg:col-span-7 text-center lg:text-left">
-              {/* Eyebrow Pill */}
-              <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full border border-[rgba(201,163,74,0.35)] bg-[rgba(201,163,74,0.08)] backdrop-blur-md mb-6 shadow-[0_4px_20px_rgba(201,163,74,0.12)]">
-                <span className="w-2 h-2 rounded-full bg-[#C9A34A] animate-ping" />
-                <Sparkles size={13} className="text-[#C9A34A]" />
-                <span className="text-[#E3C269] text-xs font-bold tracking-widest uppercase">
-                  Premium Land Investment Platform
-                </span>
-              </div>
-
-              {/* Main Headline */}
-              <h1 className="font-['Playfair_Display'] text-5xl sm:text-7xl md:text-8xl lg:text-8xl xl:text-9xl font-black text-[#F5F5F5] leading-none tracking-tight mb-6">
-                FIND.{' '}
-                <span className="text-shimmer">INVEST.</span>{' '}
-                GROW.
-              </h1>
-
-              {/* Subtitle */}
-              <p className="text-xl sm:text-2xl md:text-3xl text-[#E3C269] font-light tracking-wide mb-4">
-                Discover land. Understand its potential. Invest with confidence.
-              </p>
-
-              {/* Supporting Paragraph */}
-              <p className="text-[#A3A3A3] text-sm sm:text-base md:text-lg max-w-xl mx-auto lg:mx-0 mb-8 sm:mb-10 leading-relaxed">
-                Plottage Hub connects discerning investors to high-growth, verified land parcels across Maharashtra with complete location intelligence and transparent due diligence.
-              </p>
-
-              {/* Hero Action CTAs */}
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
-                <Link
-                  to="/explore"
-                  className="btn-gold w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-bold shadow-[0_8px_30px_rgba(201,163,74,0.35)]"
-                >
-                  <span className="flex items-center justify-center gap-2.5">
-                    EXPLORE PLOTS <ArrowRight size={18} />
+        <PageContainer>
+          <div
+            ref={heroRef}
+            className="reveal relative z-10 w-full"
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left Content Column */}
+              <div className="lg:col-span-7 text-center lg:text-left">
+                {/* Eyebrow Pill */}
+                <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full border border-[rgba(201,163,74,0.35)] bg-[rgba(201,163,74,0.08)] backdrop-blur-md mb-6 shadow-[0_4px_20px_rgba(201,163,74,0.12)]">
+                  <span className="w-2 h-2 rounded-full bg-[#C9A34A] animate-ping" />
+                  <Sparkles size={13} className="text-[#C9A34A]" />
+                  <span className="text-[#E3C269] text-xs font-bold tracking-widest uppercase">
+                    Premium Land Investment Platform
                   </span>
-                </Link>
+                </div>
 
-                <Link
-                  to="/login"
-                  className="btn-gold-outline w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-semibold"
-                >
-                  <span>LIST YOUR PROPERTY</span>
-                </Link>
+                {/* Main Headline (Responsive Clamp Sizing) */}
+                <h1 className="font-['Playfair_Display'] text-[clamp(2.5rem,5.5vw,4.75rem)] font-black text-[#F5F5F5] leading-tight tracking-tight max-w-3xl mx-auto lg:mx-0 mb-5">
+                  FIND.{' '}
+                  <span className="text-shimmer">INVEST.</span>{' '}
+                  GROW.
+                </h1>
+
+                {/* Subtitle */}
+                <p className="text-[clamp(1.1rem,1.8vw,1.4rem)] text-[#E3C269] font-light tracking-wide mb-4">
+                  Discover land. Understand its potential. Invest with confidence.
+                </p>
+
+                {/* Supporting Paragraph */}
+                <p className="text-[#A3A3A3] text-[clamp(0.95rem,1.2vw,1.1rem)] max-w-xl mx-auto lg:mx-0 mb-8 sm:mb-10 leading-relaxed">
+                  Plottage Hub connects discerning investors to high-growth, verified land parcels across Maharashtra with complete location intelligence and transparent due diligence.
+                </p>
+
+                {/* Hero Action CTAs */}
+                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
+                  <Link
+                    to="/explore"
+                    className="btn-gold w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-bold shadow-[0_8px_30px_rgba(201,163,74,0.35)]"
+                  >
+                    <span className="flex items-center justify-center gap-2.5">
+                      EXPLORE PLOTS <ArrowRight size={18} />
+                    </span>
+                  </Link>
+
+                  <Link
+                    to="/login"
+                    className="btn-gold-outline w-full sm:w-auto px-8 py-4 rounded-2xl text-base font-semibold"
+                  >
+                    <span>LIST YOUR PROPERTY</span>
+                  </Link>
+                </div>
+
+                {/* Trust Indicators */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs sm:text-sm text-[#A3A3A3]">
+                  {[
+                    'RERA Verified Properties',
+                    'Direct Owner Connect',
+                    'Zero Brokerage',
+                  ].map((item) => (
+                    <div key={item} className="flex items-center gap-2">
+                      <CheckCircle2 size={16} className="text-[#C9A34A] flex-shrink-0" />
+                      <span className="font-medium">{item}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs sm:text-sm text-[#A3A3A3]">
-                {[
-                  'RERA Verified Properties',
-                  'Direct Owner Connect',
-                  'Zero Brokerage',
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-2">
-                    <CheckCircle2 size={16} className="text-[#C9A34A] flex-shrink-0" />
-                    <span className="font-medium">{item}</span>
-                  </div>
-                ))}
+              {/* Right Column: 3D Holographic Terrain Mesh */}
+              <div className="lg:col-span-5 hidden lg:block">
+                <Hero3DVisual />
               </div>
-            </div>
-
-            {/* Right Column: 3D Holographic Terrain Mesh */}
-            <div className="lg:col-span-5 hidden lg:block">
-              <Hero3DVisual />
             </div>
           </div>
-        </div>
+        </PageContainer>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 2: PREMIUM SEARCH / FILTER BAR
-          — Normal document flow. No negative margins.
-          — Clear breathing room between hero and stats.
+          — Normal document flow with clear breathing room.
       ───────────────────────────────────────────────────────────── */}
-      <section className="w-full bg-[#070707] relative z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      <section className="w-full bg-[#070707] relative z-20 py-8 md:py-12">
+        <PageContainer>
           <SearchBar />
-        </div>
+        </PageContainer>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 3: NUMBERS THAT SPEAK (UNIFORM 4-CARD METRICS)
       ───────────────────────────────────────────────────────────── */}
-      <section ref={statsRef} className="reveal py-16 md:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-2">Our Track Record</p>
-          <h2 className="font-['Playfair_Display'] text-3xl sm:text-4xl md:text-5xl font-bold text-[#F5F5F5]">
-            Numbers That Speak
-          </h2>
-        </div>
+      <section ref={statsRef} className="reveal py-16 md:py-24">
+        <PageContainer>
+          <div className="text-center mb-12">
+            <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-2">Our Track Record</p>
+            <h2 className="font-['Playfair_Display'] text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-[#F5F5F5] leading-tight">
+              Numbers That Speak
+            </h2>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {statsData.map((stat, i) => (
-            <div
-              key={i}
-              className="group relative flex flex-col justify-between p-8 rounded-2xl md:rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#101010] hover:border-[rgba(201,163,74,0.4)] transition-all duration-300 shadow-[0_15px_35px_rgba(0,0,0,0.5)] overflow-hidden"
-            >
-              {/* Background ambient glow */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {statsData.map((stat, i) => (
               <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                style={{ background: 'radial-gradient(circle at center, rgba(201,163,74,0.08) 0%, transparent 70%)' }}
-              />
+                key={i}
+                className="group relative flex flex-col justify-between p-8 rounded-2xl md:rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#101010] hover:border-[rgba(201,163,74,0.4)] transition-all duration-300 shadow-[0_15px_35px_rgba(0,0,0,0.5)] overflow-hidden"
+              >
+                {/* Background ambient glow */}
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                  style={{ background: 'radial-gradient(circle at center, rgba(201,163,74,0.08) 0%, transparent 70%)' }}
+                />
 
-              {/* Number with Count-Up */}
-              <div className="relative z-10 mb-4">
-                <span className="font-['Playfair_Display'] text-4xl sm:text-5xl lg:text-5xl font-black text-[#C9A34A] leading-none tracking-tight block group-hover:scale-105 transition-transform duration-300">
-                  <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                </span>
-              </div>
+                {/* Number with Count-Up */}
+                <div className="relative z-10 mb-4">
+                  <span className="font-['Playfair_Display'] text-4xl sm:text-5xl font-black text-[#C9A34A] leading-none tracking-tight block group-hover:scale-105 transition-transform duration-300">
+                    <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                  </span>
+                </div>
 
-              {/* Labels */}
-              <div className="relative z-10 border-t border-[rgba(255,255,255,0.06)] pt-4">
-                <p className="text-[#F5F5F5] font-bold text-base mb-1">{stat.label}</p>
-                <p className="text-[#A3A3A3] text-xs">{stat.sublabel}</p>
+                {/* Labels */}
+                <div className="relative z-10 border-t border-[rgba(255,255,255,0.06)] pt-4">
+                  <p className="text-[#F5F5F5] font-bold text-base mb-1">{stat.label}</p>
+                  <p className="text-[#A3A3A3] text-xs">{stat.sublabel}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </PageContainer>
       </section>
 
-      <div className="divider-gold max-w-7xl mx-auto px-6" />
+      <div className="divider-gold max-w-7xl mx-auto px-6 opacity-60" />
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 4: FEATURED OPPORTUNITIES (4-COL RESPONSIVE GRID)
       ───────────────────────────────────────────────────────────── */}
-      <section ref={featuredRef} className="reveal py-16 md:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        {/* Proper Non-Overlapping Header Layout */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-          <div>
-            <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-2">HAND-PICKED FOR YOU</p>
-            <h2 className="font-['Playfair_Display'] text-3xl sm:text-4xl md:text-5xl font-bold text-[#F5F5F5]">
-              Featured Opportunities
-            </h2>
-          </div>
-          <p className="text-[#A3A3A3] max-w-md text-sm sm:text-base leading-relaxed md:text-right">
-            Curated plots in high-potential destinations across Maharashtra, selected for superior connectivity and appreciation.
-          </p>
-        </div>
-
-        {/* 4-Card Responsive Grid with 3D Tilt */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProps.map((p) => (
-            <div key={p.id} className="h-full">
-              <PropertyCard property={p} />
+      <section ref={featuredRef} className="reveal py-16 md:py-24">
+        <PageContainer>
+          {/* Header Layout */}
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+            <div>
+              <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-2">HAND-PICKED FOR YOU</p>
+              <h2 className="font-['Playfair_Display'] text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-[#F5F5F5] leading-tight">
+                Featured Opportunities
+              </h2>
             </div>
-          ))}
-        </div>
+            <p className="text-[#A3A3A3] max-w-md text-sm sm:text-base leading-relaxed md:text-right">
+              Curated plots in high-potential destinations across Maharashtra, selected for superior connectivity and appreciation.
+            </p>
+          </div>
 
-        {/* View All Button */}
-        <div className="text-center mt-12">
-          <Link
-            to="/explore"
-            className="btn-gold-outline px-10 py-4 rounded-2xl font-bold text-sm tracking-wide inline-flex items-center gap-2"
-          >
-            <span>VIEW ALL PROPERTIES</span>
-            <ArrowRight size={16} />
-          </Link>
-        </div>
+          {/* 4-Card Responsive Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProps.map((p) => (
+              <div key={p.id} className="h-full">
+                <PropertyCard property={p} />
+              </div>
+            ))}
+          </div>
+
+          {/* View All Button */}
+          <div className="text-center mt-12">
+            <Link
+              to="/explore"
+              className="btn-gold-outline px-10 py-4 rounded-2xl font-bold text-sm tracking-wide inline-flex items-center gap-2"
+            >
+              <span>VIEW ALL PROPERTIES</span>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </PageContainer>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 5: INVESTMENT INTELLIGENCE (DASHBOARD + 3D MASTERPLAN)
       ───────────────────────────────────────────────────────────── */}
       <section ref={investRef} className="reveal py-20 md:py-28" style={{ backgroundColor: 'var(--bg-secondary)' }} id="about">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <PageContainer>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             {/* Left Column: Interactive 3D Terrain Masterplan */}
             <div className="lg:col-span-6">
@@ -337,17 +350,18 @@ export default function Home() {
                 <span>INVESTMENT INTELLIGENCE</span>
               </div>
 
-              <h2 className="font-['Playfair_Display'] text-3xl sm:text-4xl md:text-5xl font-bold text-[#F5F5F5] leading-tight mb-5">
+              {/* Clamp-based Heading with Max-width */}
+              <h2 className="font-['Playfair_Display'] text-[clamp(1.75rem,3.2vw,2.75rem)] font-bold text-[#F5F5F5] leading-tight max-w-2xl mb-5">
                 LAND ISN'T JUST PROPERTY.{' '}
                 <span className="text-gold-gradient">IT'S GENERATIONAL WEALTH.</span>
               </h2>
 
-              <p className="text-[#A3A3A3] text-sm sm:text-base leading-relaxed mb-8">
+              <p className="text-[#A3A3A3] text-sm sm:text-base leading-relaxed mb-8 max-w-xl">
                 Every land opportunity on Plottage Hub undergoes multi-vector assessment — analyzing road connectivity, infrastructure expansions, zoning compliance, and historical appreciation trajectories.
               </p>
 
               {/* Progress Metrics Container */}
-              <div className="space-y-5 mb-10">
+              <div className="space-y-5 mb-10 max-w-xl">
                 {[
                   { label: 'Location Score', value: 92 },
                   { label: 'Long-Term Development', value: 88 },
@@ -357,7 +371,7 @@ export default function Home() {
                   <div key={item.label} className="w-full">
                     <div className="flex justify-between text-xs sm:text-sm font-semibold mb-2">
                       <span className="text-[#A3A3A3]">{item.label}</span>
-                      <span className="text-[#C9A34A]">{item.value}%</span>
+                      <span className="text-[#C9A34A] font-bold">{item.value}%</span>
                     </div>
                     <div className="progress-track w-full">
                       <div className="progress-bar" style={{ width: `${item.value}%` }} />
@@ -366,62 +380,64 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Separate CTA Button (NO OVERLAP) */}
+              {/* CTA Button */}
               <Link
                 to="/explore"
-                className="btn-gold px-8 py-4 rounded-2xl font-bold text-sm tracking-wide inline-flex items-center gap-2.5"
+                className="btn-gold px-8 py-4 rounded-2xl font-bold text-sm tracking-wide inline-flex items-center gap-2.5 shadow-md"
               >
                 <span>EXPLORE INVESTMENT OPPORTUNITIES</span>
                 <ArrowRight size={16} />
               </Link>
             </div>
           </div>
-        </div>
+        </PageContainer>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 6: HOW IT WORKS (HORIZONTAL TIMELINE)
       ───────────────────────────────────────────────────────────── */}
-      <section ref={howRef} className="reveal py-20 md:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" id="how-it-works">
-        <div className="text-center mb-16">
-          <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-2">STREAMLINED PROCESS</p>
-          <h2 className="font-['Playfair_Display'] text-3xl sm:text-4xl md:text-5xl font-bold text-[#F5F5F5]">
-            How It Works
-          </h2>
-        </div>
+      <section ref={howRef} className="reveal py-20 md:py-28" id="how-it-works">
+        <PageContainer>
+          <div className="text-center mb-16">
+            <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-2">STREAMLINED PROCESS</p>
+            <h2 className="font-['Playfair_Display'] text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-[#F5F5F5] leading-tight">
+              How It Works
+            </h2>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
-          {howItWorksSteps.map((step, i) => (
-            <div
-              key={step.num}
-              className="relative p-7 rounded-2xl md:rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#101010] hover:border-[rgba(201,163,74,0.35)] transition-all duration-300 group flex flex-col justify-between"
-            >
-              <div>
-                <div className="text-5xl font-black font-['Playfair_Display'] text-[rgba(201,163,74,0.15)] group-hover:text-[rgba(201,163,74,0.35)] transition-colors mb-4">
-                  {step.num}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+            {howItWorksSteps.map((step, i) => (
+              <div
+                key={step.num}
+                className="relative p-7 rounded-2xl md:rounded-3xl border border-[rgba(255,255,255,0.08)] bg-[#101010] hover:border-[rgba(201,163,74,0.35)] transition-all duration-300 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="text-5xl font-black font-['Playfair_Display'] text-[rgba(201,163,74,0.15)] group-hover:text-[rgba(201,163,74,0.35)] transition-colors mb-4">
+                    {step.num}
+                  </div>
+                  <h3 className="text-lg font-bold text-[#F5F5F5] mb-2">{step.title}</h3>
+                  <p className="text-[#A3A3A3] text-sm leading-relaxed">{step.desc}</p>
                 </div>
-                <h3 className="text-lg font-bold text-[#F5F5F5] mb-2">{step.title}</h3>
-                <p className="text-[#A3A3A3] text-sm leading-relaxed">{step.desc}</p>
+
+                {i < howItWorksSteps.length - 1 && (
+                  <div className="hidden lg:flex absolute top-1/2 -right-3 -translate-y-1/2 z-10 text-[#C9A34A] opacity-30">
+                    <ChevronRight size={22} />
+                  </div>
+                )}
               </div>
-
-              {i < howItWorksSteps.length - 1 && (
-                <div className="hidden lg:flex absolute top-1/2 -right-3 -translate-y-1/2 z-10 text-[#C9A34A] opacity-30">
-                  <ChevronRight size={22} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </PageContainer>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
           SECTION 7: TRUST SECTION (PROPERTY DISCOVERY YOU CAN TRUST)
       ───────────────────────────────────────────────────────────── */}
       <section ref={trustRef} className="reveal py-20 md:py-28" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <PageContainer>
           <div className="text-center mb-16">
             <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-2">OUR ADVANTAGE</p>
-            <h2 className="font-['Playfair_Display'] text-3xl sm:text-4xl md:text-5xl font-bold text-[#F5F5F5]">
+            <h2 className="font-['Playfair_Display'] text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-[#F5F5F5] leading-tight">
               Property Discovery You Can Trust
             </h2>
           </div>
@@ -444,50 +460,55 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
+        </PageContainer>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
-          SECTION 8: FINAL CTA SECTION
+          SECTION 8: FINAL CTA SECTION (CLEAN SEPARATION BEFORE FOOTER)
       ───────────────────────────────────────────────────────────── */}
-      <section ref={ctaRef} className="reveal py-24 md:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden" id="contact">
-        {/* Background glow and subtle borders */}
+      <section ref={ctaRef} className="reveal py-20 md:py-28 relative overflow-hidden" id="contact">
+        {/* Background glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,163,74,0.08) 0%, transparent 70%)' }}
         />
-        <div className="absolute inset-0 border-y border-[rgba(201,163,74,0.12)] pointer-events-none" />
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-4">BEGIN YOUR JOURNEY</p>
+        <PageContainer>
+          <div className="relative z-10 max-w-3xl mx-auto text-center">
+            <p className="text-[#C9A34A] text-xs font-bold tracking-widest uppercase mb-3">BEGIN YOUR JOURNEY</p>
 
-          <h2 className="font-['Playfair_Display'] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#F5F5F5] leading-tight mb-6">
-            YOUR NEXT INVESTMENT COULD START WITH ONE PLOT.
-          </h2>
+            {/* Responsive Clamp Heading */}
+            <h2 className="font-['Playfair_Display'] text-[clamp(1.85rem,3.8vw,3rem)] font-black text-[#F5F5F5] leading-tight max-w-2xl mx-auto mb-5 tracking-tight">
+              YOUR NEXT INVESTMENT COULD START WITH ONE PLOT.
+            </h2>
 
-          <p className="text-[#A3A3A3] text-base sm:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-            Join hundreds of forward-thinking investors and families securing high-growth land assets with Plottage Hub.
-          </p>
+            <p className="text-[#A3A3A3] text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+              Join hundreds of forward-thinking investors and families securing high-growth land assets with Plottage Hub.
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              to="/explore"
-              className="btn-gold w-full sm:w-auto px-10 py-5 rounded-2xl text-base font-black tracking-widest shadow-[0_10px_35px_rgba(201,163,74,0.4)]"
-            >
-              <span className="flex items-center justify-center gap-2.5">
-                EXPLORE PLOTS <ArrowRight size={20} />
-              </span>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                to="/explore"
+                className="btn-gold w-full sm:w-auto px-10 py-4.5 rounded-2xl text-sm font-black tracking-wider shadow-[0_8px_30px_rgba(201,163,74,0.35)]"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  EXPLORE PLOTS <ArrowRight size={18} />
+                </span>
+              </Link>
 
-            <Link
-              to="/login"
-              className="btn-gold-outline w-full sm:w-auto px-10 py-5 rounded-2xl text-base font-semibold"
-            >
-              <span>LIST YOUR PROPERTY</span>
-            </Link>
+              <Link
+                to="/login"
+                className="btn-gold-outline w-full sm:w-auto px-10 py-4.5 rounded-2xl text-sm font-semibold"
+              >
+                <span>LIST YOUR PROPERTY</span>
+              </Link>
+            </div>
           </div>
-        </div>
+        </PageContainer>
       </section>
+
+      {/* Subtle Divider before Footer to prevent section collision */}
+      <div className="border-t border-[rgba(255,255,255,0.08)]" />
 
       <Footer />
     </div>

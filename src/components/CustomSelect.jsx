@@ -1,45 +1,52 @@
-import { useState, useRef, useEffect, useCallback, useId } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect, useId } from 'react';
+import { ChevronDown, Check } from 'lucide-react';
 
 /**
- * CustomSelect — fully custom, accessible dropdown
+ * CustomSelect — fully accessible, robust dropdown component
+ *
+ * Uses container-relative positioning (`position: absolute; top: calc(100% + 8px); left: 0; width: 100%`)
+ * so the option list is always anchored directly underneath its trigger element, with zero detached floating.
  *
  * Props:
- *   icon        — Lucide icon component
- *   label       — small uppercase eyebrow label (e.g. "Budget")
- *   placeholder — shown when no value selected
+ *   icon        — Lucide icon component (optional)
+ *   label       — uppercase eyebrow label (e.g. "Budget", optional)
+ *   placeholder — placeholder text when no option is selected
  *   value       — controlled value string
  *   onChange    — (value: string) => void
  *   options     — string[]
+ *   compact     — boolean, smaller padding for sidebar/sorting controls
+ *   className   — optional wrapper CSS class
  */
-export default function CustomSelect({ icon: Icon, label, placeholder, value, onChange, options }) {
-  const [open, setOpen]           = useState(false);
+export default function CustomSelect({
+  icon: Icon,
+  label,
+  placeholder = 'Select...',
+  value,
+  onChange,
+  options = [],
+  compact = false,
+  className = '',
+}) {
+  const [open, setOpen] = useState(false);
   const [focusedIdx, setFocusedIdx] = useState(-1);
-  const [dropPos, setDropPos]     = useState({ top: 0, left: 0, width: 0 });
 
+  const containerRef = useRef(null);
   const triggerRef = useRef(null);
-  const listRef    = useRef(null);
-  const uid        = useId();
-  const listId     = `cs-list-${uid}`;
+  const listRef = useRef(null);
+  const uid = useId();
+  const listId = `cs-list-${uid}`;
 
-  const hasValue = !!value;
+  const hasValue = !!value && value !== 'All';
 
-  /* ── Compute dropdown position (fixed, escapes any stacking context) ── */
-  const computePosition = useCallback(() => {
-    if (!triggerRef.current) return;
-    const r = triggerRef.current.getBoundingClientRect();
-    setDropPos({
-      top:   r.bottom + window.scrollY + 6,
-      left:  r.left   + window.scrollX,
-      width: r.width,
-    });
-  }, []);
-
-  /* ── Open/close ── */
-  const openDropdown = () => {
-    computePosition();
-    setOpen(true);
-    setFocusedIdx(options.indexOf(value));
+  // Toggle open
+  const toggleDropdown = () => {
+    if (!open) {
+      setOpen(true);
+      setFocusedIdx(options.indexOf(value));
+    } else {
+      setOpen(false);
+      setFocusedIdx(-1);
+    }
   };
 
   const closeDropdown = () => {
@@ -49,47 +56,40 @@ export default function CustomSelect({ icon: Icon, label, placeholder, value, on
   };
 
   const selectOption = (opt) => {
-    onChange(opt === value ? '' : opt); // toggle-off if same
-    closeDropdown();
+    onChange(opt === value && opt !== 'All' ? 'All' : opt);
+    setOpen(false);
+    setFocusedIdx(-1);
+    triggerRef.current?.focus();
   };
 
-  /* ── Click outside ── */
+  // Close when clicking outside
   useEffect(() => {
     if (!open) return;
-    const handler = (e) => {
-      if (
-        !triggerRef.current?.contains(e.target) &&
-        !listRef.current?.contains(e.target)
-      ) {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
         setOpen(false);
         setFocusedIdx(-1);
       }
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, [open]);
 
-  /* ── Reposition on scroll / resize ── */
-  useEffect(() => {
-    if (!open) return;
-    const update = () => computePosition();
-    window.addEventListener('scroll', update, true);
-    window.addEventListener('resize', update);
-    return () => {
-      window.removeEventListener('scroll', update, true);
-      window.removeEventListener('resize', update);
-    };
-  }, [open, computePosition]);
-
-  /* ── Keyboard navigation ── */
+  // Keyboard navigation
   const handleKeyDown = (e) => {
     if (!open) {
       if (['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
         e.preventDefault();
-        openDropdown();
+        setOpen(true);
+        setFocusedIdx(options.indexOf(value) >= 0 ? options.indexOf(value) : 0);
       }
       return;
     }
+
     switch (e.key) {
       case 'Escape':
         e.preventDefault();
@@ -97,163 +97,122 @@ export default function CustomSelect({ icon: Icon, label, placeholder, value, on
         break;
       case 'ArrowDown':
         e.preventDefault();
-        setFocusedIdx((i) => Math.min(i + 1, options.length - 1));
+        setFocusedIdx((prev) => (prev < options.length - 1 ? prev + 1 : 0));
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setFocusedIdx((i) => Math.max(i - 1, 0));
+        setFocusedIdx((prev) => (prev > 0 ? prev - 1 : options.length - 1));
         break;
       case 'Enter':
       case ' ':
         e.preventDefault();
-        if (focusedIdx >= 0) selectOption(options[focusedIdx]);
+        if (focusedIdx >= 0 && focusedIdx < options.length) {
+          selectOption(options[focusedIdx]);
+        }
         break;
       case 'Tab':
-        closeDropdown();
+        setOpen(false);
+        setFocusedIdx(-1);
         break;
       default:
         break;
     }
   };
 
-  /* ── Scroll focused option into view ── */
+  // Scroll focused option into view
   useEffect(() => {
     if (!open || focusedIdx < 0 || !listRef.current) return;
     const item = listRef.current.children[focusedIdx];
     item?.scrollIntoView({ block: 'nearest' });
   }, [focusedIdx, open]);
 
-  /* ── Field styles ── */
-  const fieldStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    height: '60px',
-    padding: '0 18px',
-    borderRadius: '14px',
-    border: open
-      ? '1.5px solid rgba(201,163,74,0.75)'
-      : '1.5px solid rgba(201,163,74,0.22)',
-    backgroundColor: 'rgba(18,18,18,0.98)',
-    boxShadow: open
-      ? '0 0 0 3px rgba(201,163,74,0.12), 0 4px 20px rgba(0,0,0,0.5)'
-      : '0 2px 12px rgba(0,0,0,0.4)',
-    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-    width: '100%',
-    cursor: 'pointer',
-    userSelect: 'none',
-    outline: 'none',
-  };
-
   return (
-    <>
-      {/* ── Trigger button ── */}
+    <div
+      ref={containerRef}
+      className={`relative w-full ${className}`}
+      style={{ zIndex: open ? 50 : 1 }}
+    >
+      {/* ── Trigger element ── */}
       <div
         ref={triggerRef}
         role="combobox"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
-        aria-label={label}
+        aria-label={label || placeholder}
         tabIndex={0}
-        style={fieldStyle}
-        onClick={() => (open ? closeDropdown() : openDropdown())}
+        onClick={toggleDropdown}
         onKeyDown={handleKeyDown}
+        className={`w-full flex items-center gap-3 transition-all duration-200 cursor-pointer select-none rounded-xl ${
+          compact
+            ? 'h-11 px-3.5 text-xs bg-[#141414] hover:bg-[#1a1a1a] border'
+            : 'h-[60px] px-4 sm:px-4.5 text-sm bg-[#121212] hover:bg-[#181818] border-[1.5px]'
+        } ${
+          open
+            ? 'border-[#C9A34A] shadow-[0_0_0_3px_rgba(201,163,74,0.15),0_4px_20px_rgba(0,0,0,0.6)]'
+            : hasValue
+            ? 'border-[rgba(201,163,74,0.45)]'
+            : 'border-[rgba(201,163,74,0.22)] hover:border-[rgba(201,163,74,0.45)]'
+        }`}
+        style={{
+          boxShadow: open
+            ? '0 0 0 3px rgba(201,163,74,0.15), 0 4px 20px rgba(0,0,0,0.6)'
+            : '0 2px 10px rgba(0,0,0,0.3)',
+        }}
       >
-        {/* Icon */}
-        <div style={{
-          flexShrink: 0,
-          width: '20px', height: '20px',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: open || hasValue ? '#E3C269' : '#C9A34A',
-          transition: 'color 0.2s ease',
-        }}>
-          <Icon size={20} strokeWidth={1.75} />
-        </div>
+        {/* Left Icon (if provided) */}
+        {Icon && (
+          <div
+            className={`flex-shrink-0 flex items-center justify-center transition-colors duration-200 ${
+              open || hasValue ? 'text-[#E3C269]' : 'text-[#C9A34A]'
+            }`}
+          >
+            <Icon size={compact ? 16 : 19} strokeWidth={1.75} />
+          </div>
+        )}
 
-        {/* Content */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{
-            fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em',
-            textTransform: 'uppercase', color: '#C9A34A',
-            marginBottom: '2px', lineHeight: 1,
-          }}>
-            {label}
-          </p>
-          <p style={{
-            fontSize: '14px', fontWeight: 500,
-            color: hasValue ? '#F5F5F5' : '#737373',
-            lineHeight: 1.2, whiteSpace: 'nowrap',
-            overflow: 'hidden', textOverflow: 'ellipsis',
-          }}>
+        {/* Content area */}
+        <div className="flex-1 min-w-0 text-left">
+          {label && (
+            <p className="text-[10px] font-bold tracking-[0.08em] uppercase text-[#C9A34A] leading-none mb-1">
+              {label}
+            </p>
+          )}
+          <p
+            className={`truncate font-medium ${
+              compact ? 'text-xs' : 'text-sm'
+            } ${hasValue ? 'text-[#F5F5F5]' : 'text-[#8A8A8A]'}`}
+          >
             {hasValue ? value : placeholder}
           </p>
         </div>
 
         {/* Chevron */}
-        <div style={{
-          flexShrink: 0, color: open ? '#C9A34A' : '#737373',
-          transition: 'transform 0.2s ease, color 0.2s ease',
-          transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-        }}>
-          <ChevronDown size={16} strokeWidth={2} />
+        <div
+          className={`flex-shrink-0 transition-transform duration-200 ${
+            open ? 'rotate-180 text-[#E3C269]' : 'rotate-0 text-[#8A8A8A]'
+          }`}
+        >
+          <ChevronDown size={compact ? 14 : 16} strokeWidth={2} />
         </div>
       </div>
 
-      {/* ── Dropdown panel — rendered via portal-like fixed positioning ── */}
+      {/* ── Dropdown options list (anchored directly under trigger) ── */}
       {open && (
         <div
           ref={listRef}
           id={listId}
           role="listbox"
-          aria-label={label}
+          aria-label={label || placeholder}
+          className="absolute top-[calc(100%+8px)] left-0 w-full z-50 bg-[#111111] border-[1.5px] border-[rgba(201,163,74,0.38)] rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.85),0_0_0_1px_rgba(201,163,74,0.1)] max-h-[280px] overflow-y-auto py-1 animate-fade-in-down"
           style={{
-            position: 'fixed',
-            top: `${dropPos.top}px`,
-            left: `${dropPos.left}px`,
-            width: `${dropPos.width}px`,
-            zIndex: 9999,
-            backgroundColor: '#111111',
-            border: '1.5px solid rgba(201,163,74,0.35)',
-            borderRadius: '14px',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(201,163,74,0.08)',
-            overflow: 'hidden',
-            maxHeight: '280px',
-            overflowY: 'auto',
-            /* Entrance animation */
-            animation: 'csDropIn 0.18s ease forwards',
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(201,163,74,0.35) transparent',
           }}
         >
-          {/* "Clear / None" option */}
-          {value && (
-            <div
-              role="option"
-              aria-selected={false}
-              onClick={() => { onChange(''); closeDropdown(); }}
-              style={{
-                padding: '12px 18px',
-                fontSize: '13px',
-                color: '#737373',
-                cursor: 'pointer',
-                borderBottom: '1px solid rgba(201,163,74,0.1)',
-                transition: 'background 0.15s ease, color 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(201,163,74,0.06)';
-                e.currentTarget.style.color = '#A3A3A3';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#737373';
-              }}
-            >
-              — Clear selection
-            </div>
-          )}
-
           {options.map((opt, idx) => {
             const isSelected = opt === value;
-            const isFocused  = idx === focusedIdx;
+            const isFocused = idx === focusedIdx;
             return (
               <div
                 key={opt}
@@ -261,47 +220,27 @@ export default function CustomSelect({ icon: Icon, label, placeholder, value, on
                 aria-selected={isSelected}
                 onClick={() => selectOption(opt)}
                 onMouseEnter={() => setFocusedIdx(idx)}
-                style={{
-                  padding: '13px 18px',
-                  fontSize: '14px',
-                  fontWeight: isSelected ? 600 : 400,
-                  color: isSelected ? '#E3C269' : isFocused ? '#F5F5F5' : '#C8C8C8',
-                  cursor: 'pointer',
-                  backgroundColor: isSelected
-                    ? 'rgba(201,163,74,0.12)'
+                className={`px-4 py-2.5 sm:py-3 text-sm cursor-pointer transition-colors duration-150 flex items-center justify-between gap-2 border-l-2 ${
+                  isSelected
+                    ? 'bg-[rgba(201,163,74,0.15)] text-[#E3C269] font-semibold border-[#C9A34A]'
                     : isFocused
-                      ? 'rgba(255,255,255,0.05)'
-                      : 'transparent',
-                  borderLeft: isSelected ? '2px solid #C9A34A' : '2px solid transparent',
-                  transition: 'background 0.12s ease, color 0.12s ease, border-color 0.12s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
+                    ? 'bg-[rgba(255,255,255,0.06)] text-[#F5F5F5] font-normal border-transparent'
+                    : 'text-[#C8C8C8] hover:text-[#F5F5F5] font-normal border-transparent'
+                }`}
               >
-                <span>{opt}</span>
+                <span className="truncate">{opt}</span>
                 {isSelected && (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <Check
+                    size={14}
+                    className="text-[#C9A34A] flex-shrink-0"
+                    strokeWidth={2.5}
+                  />
                 )}
               </div>
             );
           })}
         </div>
       )}
-
-      {/* Keyframe animation injected once */}
-      <style>{`
-        @keyframes csDropIn {
-          from { opacity: 0; transform: translateY(-6px); }
-          to   { opacity: 1; transform: translateY(0);   }
-        }
-        /* Custom scrollbar for dropdown */
-        #${CSS.escape(listId)}::-webkit-scrollbar { width: 4px; }
-        #${CSS.escape(listId)}::-webkit-scrollbar-track { background: transparent; }
-        #${CSS.escape(listId)}::-webkit-scrollbar-thumb { background: rgba(201,163,74,0.3); border-radius: 2px; }
-      `}</style>
-    </>
+    </div>
   );
 }
