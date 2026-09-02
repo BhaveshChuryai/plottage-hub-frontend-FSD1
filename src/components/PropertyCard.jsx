@@ -1,130 +1,164 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Square, Heart, CheckCircle, ArrowRight, TrendingUp, Zap } from 'lucide-react';
+import { MapPin, Maximize2, Heart, CheckCircle2, ArrowRight, TrendingUp, Sparkles } from 'lucide-react';
 import useWishlist from '../hooks/useWishlist';
 
-// useContext: Consumes WishlistContext via useWishlist hook for global wishlist state
 export default function PropertyCard({ property }) {
   const [imgError, setImgError] = useState(false);
+  const cardRef = useRef(null);
+  const [transformStyle, setTransformStyle] = useState('');
+  const [shineStyle, setShineStyle] = useState({ opacity: 0 });
 
-  // useContext: Shared wishlist state — same across Home, Explore, PropertyDetails, Dashboard
   const { toggleWishlist, isWishlisted } = useWishlist();
   const wishlisted = isWishlisted(property.id);
 
-  const fallbackImg = `https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600&q=80`;
+  const fallbackImg = 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80';
 
-  const potentialColor =
-    property.potential >= 90 ? 'text-emerald-400' :
-    property.potential >= 75 ? 'text-[#C9A34A]' :
-    'text-[#A5A5A5]';
+  // 3D Tilt calculation
+  const handleMouseMove = useCallback((e) => {
+    if (!cardRef.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.innerWidth < 768) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
 
-  const potentialBg =
-    property.potential >= 90 ? 'bg-emerald-500/10 border-emerald-500/20' :
-    property.potential >= 75 ? 'bg-[rgba(201,163,74,0.10)] border-[rgba(201,163,74,0.25)]' :
-    'bg-white/5 border-white/10';
+    const rotateX = ((y - centerY) / centerY) * -6; // max 6 deg
+    const rotateY = ((x - centerX) / centerX) * 6; // max 6 deg
+
+    setTransformStyle(`perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`);
+    setShineStyle({
+      opacity: 0.15,
+      background: `radial-gradient(circle at ${x}px ${y}px, rgba(201,163,74,0.4) 0%, transparent 60%)`,
+    });
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setTransformStyle('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+    setShineStyle({ opacity: 0 });
+  }, []);
+
+  const potentialScore = property.potential || 85;
 
   return (
-    <div className="card-hover rounded-2xl overflow-hidden bg-[#111111] border border-[rgba(255,255,255,0.07)] group flex flex-col h-full relative">
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ transform: transformStyle }}
+      className="tilt-card relative flex flex-col h-full rounded-2xl md:rounded-3xl overflow-hidden bg-[#121212] border border-[rgba(255,255,255,0.08)] group transition-all duration-300"
+    >
+      {/* Dynamic specular light layer */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-20"
+        style={shineStyle}
+      />
 
-      {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      {/* Image Container */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0a0a0a]">
         <img
           src={imgError ? fallbackImg : property.image}
           alt={property.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
           onError={() => setImgError(true)}
           loading="lazy"
         />
 
-        {/* Multi-layer overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/20 to-transparent opacity-80 group-hover:opacity-70 transition-opacity duration-300" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[rgba(201,163,74,0.06)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        {/* Ambient Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-[#121212]/30 to-transparent opacity-90 group-hover:opacity-75 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[rgba(201,163,74,0.12)] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-        {/* Top badges */}
-        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+        {/* Top Badges */}
+        <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-1.5 z-10">
           {property.verified && (
-            <span className="badge-verified flex items-center gap-1 text-[10px]">
-              <CheckCircle size={9} />
+            <span className="badge-verified flex items-center gap-1 backdrop-blur-md shadow-md">
+              <CheckCircle2 size={11} className="text-[#C9A34A]" />
               VERIFIED
             </span>
           )}
           {property.featured && (
-            <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-md bg-[#C9A34A] text-[#080808] shadow-lg shadow-[rgba(201,163,74,0.3)]">
-              <Zap size={9} />
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold rounded-md bg-gradient-to-r from-[#C9A34A] to-[#E3C269] text-[#080808] shadow-[0_2px_10px_rgba(201,163,74,0.4)]">
+              <Sparkles size={10} />
               FEATURED
             </span>
           )}
         </div>
 
-        {/* Wishlist button */}
+        {/* Wishlist Heart Button */}
         <button
-          onClick={() => toggleWishlist(property.id)}
-          className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWishlist(property.id);
+          }}
+          className={`absolute top-3.5 right-3.5 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 z-10 ${
             wishlisted
-              ? 'bg-[#C9A34A] text-[#080808] shadow-lg shadow-[rgba(201,163,74,0.4)]'
-              : 'bg-[#080808]/65 backdrop-blur-sm text-[#A5A5A5] hover:bg-[rgba(201,163,74,0.15)] hover:text-[#C9A34A] border border-[rgba(255,255,255,0.12)]'
+              ? 'bg-[#C9A34A] text-[#080808] shadow-[0_0_15px_rgba(201,163,74,0.6)] scale-105'
+              : 'bg-[#080808]/70 backdrop-blur-md text-[#A3A3A3] hover:text-[#C9A34A] hover:bg-[#080808] border border-[rgba(255,255,255,0.15)]'
           }`}
           aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
-          <Heart size={15} fill={wishlisted ? 'currentColor' : 'none'} strokeWidth={wishlisted ? 0 : 1.5} />
+          <Heart size={15} fill={wishlisted ? 'currentColor' : 'none'} strokeWidth={wishlisted ? 0 : 2} />
         </button>
 
-        {/* Property type + potential — bottom bar */}
-        <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-3 pb-3">
-          <span className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-[#080808]/75 text-[#C9A34A] border border-[rgba(201,163,74,0.3)] backdrop-blur-sm uppercase tracking-widest">
+        {/* Floating Bottom Metadata in Image */}
+        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between z-10">
+          <span className="px-2.5 py-1 text-[10px] font-bold tracking-widest uppercase rounded-lg bg-[#070707]/80 text-[#E3C269] border border-[rgba(201,163,74,0.3)] backdrop-blur-md">
             {property.type}
           </span>
-          <span className={`flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-lg border backdrop-blur-sm ${potentialBg} ${potentialColor}`}>
-            <TrendingUp size={10} />
-            {property.potential}%
+          <span className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-lg bg-[#070707]/80 text-[#34D399] border border-emerald-500/30 backdrop-blur-md">
+            <TrendingUp size={11} />
+            {potentialScore}% Growth
           </span>
         </div>
       </div>
 
-      {/* Content */}
+      {/* Card Body */}
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="text-[#F5F5F5] font-semibold text-[15px] leading-snug mb-2 group-hover:text-[#E3C269] transition-colors duration-300 line-clamp-2">
+        {/* Title */}
+        <h3 className="text-[#F5F5F5] font-bold text-base md:text-lg leading-snug mb-1.5 group-hover:text-[#E3C269] transition-colors duration-200 line-clamp-1">
           {property.title}
         </h3>
 
-        <div className="flex items-center gap-1.5 text-[#A5A5A5] text-xs mb-3">
-          <MapPin size={11} className="text-[#C9A34A] flex-shrink-0" />
+        {/* Location */}
+        <div className="flex items-center gap-1.5 text-[#A3A3A3] text-xs mb-3">
+          <MapPin size={13} className="text-[#C9A34A] flex-shrink-0" />
           <span className="truncate">{property.location}</span>
         </div>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {property.tags.slice(0, 2).map((tag) => (
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          {property.tags && property.tags.slice(0, 2).map((tag) => (
             <span
               key={tag}
-              className="px-2 py-0.5 text-[10px] rounded-md bg-[rgba(255,255,255,0.04)] text-[#A5A5A5] border border-[rgba(255,255,255,0.07)] tracking-wide"
+              className="px-2 py-0.5 text-[11px] font-medium rounded-md bg-[rgba(255,255,255,0.04)] text-[#A3A3A3] border border-[rgba(255,255,255,0.08)]"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        {/* Price & Size + CTA */}
-        <div className="flex items-end justify-between mt-auto pt-4 border-t border-[rgba(255,255,255,0.06)]">
+        {/* Footer: Price, Size & CTA */}
+        <div className="mt-auto pt-4 border-t border-[rgba(255,255,255,0.07)] flex items-end justify-between gap-2">
           <div>
-            <p className="text-[#C9A34A] font-bold text-xl leading-none mb-1">{property.priceDisplay}</p>
-            <div className="flex items-center gap-1 text-[#A5A5A5] text-xs">
-              <Square size={10} />
+            <p className="text-[#C9A34A] font-black text-xl md:text-2xl leading-none mb-1 font-['Playfair_Display']">
+              {property.priceDisplay}
+            </p>
+            <div className="flex items-center gap-1 text-[#A3A3A3] text-xs">
+              <Maximize2 size={11} className="text-[#C9A34A]" />
               <span>{property.sizeDisplay}</span>
             </div>
           </div>
+
           <Link
             to={`/property/${property.id}`}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-300 bg-[rgba(201,163,74,0.08)] text-[#C9A34A] border border-[rgba(201,163,74,0.2)] hover:bg-[rgba(201,163,74,0.15)] hover:border-[rgba(201,163,74,0.4)] group/btn"
+            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl text-xs font-bold text-[#C9A34A] bg-[rgba(201,163,74,0.08)] border border-[rgba(201,163,74,0.25)] hover:bg-[#C9A34A] hover:text-[#080808] transition-all duration-200 group/btn shadow-sm"
           >
-            View Details
-            <ArrowRight size={13} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
+            <span>View Details</span>
+            <ArrowRight size={13} className="transition-transform duration-200 group-hover/btn:translate-x-1" />
           </Link>
         </div>
       </div>
-
-      {/* Gold border glow on hover */}
-      <div className="absolute inset-0 rounded-2xl border border-[rgba(201,163,74,0)] group-hover:border-[rgba(201,163,74,0.25)] transition-all duration-500 pointer-events-none" />
     </div>
   );
 }

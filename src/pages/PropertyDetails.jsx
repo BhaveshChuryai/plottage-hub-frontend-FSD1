@@ -378,7 +378,7 @@ export default function PropertyDetails() {
                   <p className="text-[#F5F5F5] text-sm font-semibold">Plottage Hub Team</p>
                   <p className="text-[#A5A5A5] text-xs">Property Expert</p>
                 </div>
-                <a href="tel:+919876543210" className="text-[#C9A34A] hover:text-[#E3C269] transition-colors p-2" aria-label="Call agent">
+                <a href="tel:+918855908374" className="text-[#C9A34A] hover:text-[#E3C269] transition-colors p-2" aria-label="Call agent">
                   <Phone size={18} />
                 </a>
               </div>
